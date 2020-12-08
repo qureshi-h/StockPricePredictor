@@ -20,8 +20,10 @@ def main():
     # navigate_to_stock(driver, code)
 
     start_date = set_start_date(driver)
-    scroll_to_date(driver, start_date)
-
+    # scroll_to_date(driver, start_date)
+    stock_prices = get_data(driver)
+    for key, value in stock_prices.items():
+        print(key, value)
     input()
     driver.quit()
 
@@ -67,6 +69,19 @@ def scroll_to_date(driver, start_date):
             break
         except NoSuchElementException:
             element.send_keys(Keys.END)
+
+
+def get_data(driver):
+
+    price_dict = dict()
+    table = driver.find_element_by_xpath("//table[@data-test='historical-prices']")
+    for row in table.find_elements_by_tag_name("tr"):
+        elements = row.find_elements_by_tag_name("td")
+        if len(elements) < 6:
+            continue
+        price_dict[elements[0].text] = elements[5].text
+
+    return price_dict
 
 
 def get_soup(url):
