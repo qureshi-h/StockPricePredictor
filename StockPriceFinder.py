@@ -4,10 +4,12 @@ import pandas as pd
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
-from selenium.common.exceptions import TimeoutException
+
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import NoSuchElementException
 from selenium.webdriver.support import expected_conditions as EC
+
+from selenium.common.exceptions import TimeoutException
+from selenium.common.exceptions import NoSuchElementException
 
 NUM_ELEMENTS = 6
 WAIT_TIME = 10  # seconds
@@ -15,8 +17,8 @@ WAIT_TIME = 10  # seconds
 DATE_POS = 0
 CLOSE_PRICE_ADJ_POS = 5
 
-DRIVER_LOC = "C:\\Program Files (x86)\\msedgedriver.exe"
 BASE_URL = "https://au.finance.yahoo.com/"
+DRIVER_LOC = "C:\\Program Files (x86)\\msedgedriver.exe"
 
 
 def find_stock_prices(stock_codes):
@@ -26,8 +28,11 @@ def find_stock_prices(stock_codes):
                                   columns=[stock_codes[0].upper()])
     data = data.rename_axis("Date")
     for stock_code in stock_codes[1:]:
+        print(stock_code)
         data[stock_code.upper()] = get_data(stock_code).values()
+        print("done")
 
+    print(data.to_string())
     return data
 
 
@@ -89,6 +94,8 @@ def scroll_to_date(driver, start_date):
     element = driver.find_element_by_tag_name('html')
     while True:
         try:
+            # print(driver.execute_script("return document.body.scrollHeight"))
+
             driver.find_element_by_xpath(f"//span[text()='{start_date}']")
             break
         except NoSuchElementException:
