@@ -26,13 +26,10 @@ def find_stock_prices(stock_codes):
 
     data = pd.DataFrame.from_dict(get_data(stock_codes[0]), orient="index",
                                   columns=[stock_codes[0].upper()])
-    data = data.rename_axis("Date")
-    for stock_code in stock_codes[1:]:
-        print(stock_code)
-        data[stock_code.upper()] = get_data(stock_code).values()
-        print("done")
 
-    print(data.to_string())
+    for stock_code in stock_codes[1:]:
+        data[stock_code.upper()] = get_data(stock_code).values()
+
     return data
 
 
