@@ -21,13 +21,13 @@ BASE_URL = "https://au.finance.yahoo.com/"
 DRIVER_LOC = "C:\\Program Files (x86)\\msedgedriver.exe"
 
 
-def find_stock_prices(stock_codes):
+def find_stock_prices(target_code, predictor_codes):
     """Creates and returns a Dataframe of historical stock prices of the given stock_codes"""
 
-    data = pd.DataFrame.from_dict(get_data(stock_codes[0]), orient="index",
-                                  columns=[stock_codes[0].upper()])
+    data = pd.DataFrame.from_dict(get_data(target_code), orient="index",
+                                  columns=[target_code.upper()])
 
-    for stock_code in stock_codes[1:]:
+    for stock_code in predictor_codes:
         data[stock_code.upper()] = get_data(stock_code).values()
 
     return data

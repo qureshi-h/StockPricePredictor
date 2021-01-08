@@ -5,17 +5,11 @@ import tkinter as tk
 from PIL import ImageTk, Image
 
 
-# data = find_stock_prices(["AAPL", "GSPC", "DJI"])
-#
-# for column in data.columns[1:]:
-#     data.plot(x="AAPL", y=column, kind="scatter")
-#
-# print(" f,hcs")
-# stock_price_predictor(data, ["GSPC", "DJI"])
-# plt.show()
-
-
 class GUI:
+
+    NUM_FRAMES_BUY = 28
+    NUM_FRAMES_SELL = 13
+    FRAME_RATE = 50
 
     def __init__(self):
         self.target_stock = ""
@@ -78,8 +72,7 @@ class GUI:
 
     def calculate(self):
 
-        data = find_stock_prices([self.target_stock] + self.predictor_stocks)
-
+        data = find_stock_prices(self.target_stock, self.predictor_stocks)
         plt.ion()
         plt.show()
         for column in self.predictor_stocks:
@@ -100,11 +93,11 @@ class GUI:
         for checkbox in self.stock_buttons:
             checkbox['state'] = tk.NORMAL
 
-        self.canvas.create_text(140, 225 + (len(self.stock_buttons) + 0.5) * 35, text="Select Predictor stocks",
-                                font=("Helvetica", 8, "bold"), fill="white")
+        self.canvas.create_text(120, 225 + (len(self.stock_buttons) + 0.4) * 35, text="Select Predictor stocks",
+                                font=("Helvetica", 10, "bold"), fill="white")
 
-        tk.Button(self.root, text="Predict", command=lambda: self.predict(data),) \
-            .place(x=250, y=225 + (len(self.stock_buttons)) * 35, width=50)
+        tk.Button(self.root, text="Predict", command=lambda: self.predict(data), ) \
+            .place(x=225, y=225 + (len(self.stock_buttons)) * 35, width=50)
 
     def predict(self, data):
 
@@ -112,10 +105,30 @@ class GUI:
             if self.chk_states[i].get():
                 print(self.stock_buttons[i]["text"])
                 self.predictor_stocks.append(self.stock_buttons[i]["text"])
+
+        current = data.iloc[0, 0]
         try:
-            stock_price_predictor(data, self.predictor_stocks)
+            result = stock_price_predictor(data, self.predictor_stocks)
         except ValueError:
-            stock_price_predictor(data, self.predictor_stocks)
+            result = stock_price_predictor(data, self.predictor_stocks)
+
+        self.canvas.create_text(130, 240 + (len(self.stock_buttons) + 1) * 35,
+                                text="The predicted value of " + self.target_stock + " is",
+                                font=("Helvetica", 10, "bold"), fill="white")
+        tk.Label(self.root, text=str(round(result, 2)), font="Verdana 10 underline") \
+            .place(x=250, y=228 + (len(self.stock_buttons) + 1) * 35)
+
+        self.canvas.create_text(150, 240 + (len(self.stock_buttons) + 2) * 35,
+                                text=self.target_stock + " is",
+                                font=("Helvetica", 10, "bold"), fill="white")
+        tk.Label(self.root, font="Verdana 10 underline",
+                 text=(lambda pred, curr: "UNDERVALUED" if curr < pred else "OVERVALUED")
+                 (result, current)).place(x=210, y=228 + (len(self.stock_buttons) + 2) * 35)
+
+        label = tk.Label(self.root)
+        label.place(x=420, y=200)
+        frames = self.get_frames(result, current)
+        self.root.after(0, lambda: self.update(frames, label, 0))
 
     def clear(self):
 
@@ -124,6 +137,23 @@ class GUI:
         self.stock_buttons.clear()
         self.chk_states.clear()
         self.target_stock = ""
+
+    def update(self, frames, label, ind):
+
+        frame = frames[ind]
+        ind += 1
+        if ind == len(frames):
+            ind = 0
+        label.configure(image=frame)
+        self.root.after(self.FRAME_RATE, self.update, frames, label, ind)
+
+    def get_frames(self, predicted, current):
+
+        if current > predicted:
+            return [tk.PhotoImage(file='E:\\Programming\\Python\\DerivativeSecurities\\res\\sell.gif',
+                                  format='gif -index %i' % i) for i in range(self.NUM_FRAMES_SELL)]
+        return [tk.PhotoImage(file='E:\\Programming\\Python\\DerivativeSecurities\\res\\buy.gif',
+                              format='gif -index %i' % i) for i in range(self.NUM_FRAMES_BUY)]
 
 
 if __name__ == '__main__':
