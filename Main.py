@@ -17,23 +17,29 @@ class GUI:
         self.stock_buttons = []
         self.chk_states = []
 
-        self.root = tk.Tk(className="StockPricePredictor")
+        self.root, self.canvas = self.create_window()
+        self.create_buttons()
+
+        self.canvas.place(x=0, y=0)
+        self.root.mainloop()
+
+    def create_window(self):
+
+        root = tk.Tk(className="StockPricePredictor")
         self.root.geometry("800x800")
         self.root.maxsize(800, 800)
 
-        self.canvas = tk.Canvas(self.root, bg="red", height=800, width=800)
-
-        # background_label = tk.Label(self.root, image=image)
-        # background_label.place(x=0, y=0, relwidth=1, relheight=1)
-        # background_label.image = image
-
-    def main(self):
+        canvas = tk.Canvas(self.root, bg="red", height=800, width=800)
 
         image = ImageTk.PhotoImage(Image.open("E:\\Programming\\Python\\DerivativeSecurities"
                                               "\\res\\bg3.jpg"))
         self.canvas.create_image(0, 0, image=image, anchor="nw")
         self.canvas.create_text(400, 50, text="Stock Price Predictor",
                                 font=("Helvetica", 16, "bold"), fill="white", width=500)
+
+        return root, canvas
+
+    def create_buttons(self):
 
         entry = tk.Entry(self.root, bg="#141412", fg="white", justify=tk.CENTER, relief=tk.RAISED)
         self.entry_reset(entry)
@@ -45,8 +51,11 @@ class GUI:
         tk.Button(self.root, text="Calculate", command=self.calculate) \
             .place(x=330, y=145, height=30, width=70)
 
-        self.canvas.place(x=0, y=0)
-        self.root.mainloop()
+        tk.Button(self.root, text="Clear", command=self.root.destroy, bg="#DC5575", cursor="X_cursor") \
+            .place(x=180, y=600, width=100, height=40)
+
+        tk.Button(self.root, text="Restart", command=self.restart, bg="#23AD60", cursor="pirate") \
+            .place(x=60, y=600, width=100, height=40)
 
     def get_data(self, entry):
 
@@ -96,7 +105,7 @@ class GUI:
         self.canvas.create_text(120, 225 + (len(self.stock_buttons) + 0.4) * 35, text="Select Predictor stocks",
                                 font=("Helvetica", 10, "bold"), fill="white")
 
-        tk.Button(self.root, text="Predict", command=lambda: self.predict(data), ) \
+        tk.Button(self.root, text="Predict", command=lambda: self.predict(data)) \
             .place(x=225, y=225 + (len(self.stock_buttons)) * 35, width=50)
 
     def predict(self, data):
@@ -106,29 +115,12 @@ class GUI:
                 print(self.stock_buttons[i]["text"])
                 self.predictor_stocks.append(self.stock_buttons[i]["text"])
 
-        current = data.iloc[0, 0]
         try:
             result = stock_price_predictor(data, self.predictor_stocks)
         except ValueError:
             result = stock_price_predictor(data, self.predictor_stocks)
 
-        self.canvas.create_text(130, 240 + (len(self.stock_buttons) + 1) * 35,
-                                text="The predicted value of " + self.target_stock + " is",
-                                font=("Helvetica", 10, "bold"), fill="white")
-        tk.Label(self.root, text=str(round(result, 2)), font="Verdana 10 underline") \
-            .place(x=250, y=228 + (len(self.stock_buttons) + 1) * 35)
-
-        self.canvas.create_text(150, 240 + (len(self.stock_buttons) + 2) * 35,
-                                text=self.target_stock + " is",
-                                font=("Helvetica", 10, "bold"), fill="white")
-        tk.Label(self.root, font="Verdana 10 underline",
-                 text=(lambda pred, curr: "UNDERVALUED" if curr < pred else "OVERVALUED")
-                 (result, current)).place(x=210, y=228 + (len(self.stock_buttons) + 2) * 35)
-
-        label = tk.Label(self.root)
-        label.place(x=420, y=200)
-        frames = self.get_frames(result, current)
-        self.root.after(0, lambda: self.update(frames, label, 0))
+        self.display_results(result, data.iloc[0, 0])
 
     def clear(self):
 
@@ -155,7 +147,32 @@ class GUI:
         return [tk.PhotoImage(file='E:\\Programming\\Python\\DerivativeSecurities\\res\\buy.gif',
                               format='gif -index %i' % i) for i in range(self.NUM_FRAMES_BUY)]
 
+    def display_results(self, result, current):
+
+        self.canvas.create_text(130, 240 + (len(self.stock_buttons) + 1) * 35,
+                                text="The predicted value of " + self.target_stock + " is",
+                                font=("Helvetica", 10, "bold"), fill="white")
+        tk.Label(self.root, text=str(round(result, 2)), font="Verdana 10 underline") \
+            .place(x=250, y=228 + (len(self.stock_buttons) + 1) * 35)
+
+        self.canvas.create_text(150, 240 + (len(self.stock_buttons) + 2) * 35,
+                                text=self.target_stock + " is",
+                                font=("Helvetica", 10, "bold"), fill="white")
+        tk.Label(self.root, font="Verdana 10 underline",
+                 text=(lambda pred, curr: "UNDERVALUED" if curr < pred else "OVERVALUED")
+                 (result, current)).place(x=210, y=228 + (len(self.stock_buttons) + 2) * 35)
+
+        label = tk.Label(self.root)
+        label.place(x=420, y=200)
+        frames = self.get_frames(result, current)
+        self.root.after(0, lambda: self.update(frames, label, 0))
+
+    def restart(self):
+
+        self.root.destroy()
+        GUI()
+
 
 if __name__ == '__main__':
-    GUI().main()
-    print("h")
+
+    GUI()
