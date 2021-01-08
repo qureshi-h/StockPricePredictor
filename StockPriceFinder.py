@@ -21,26 +21,26 @@ BASE_URL = "https://au.finance.yahoo.com/"
 DRIVER_LOC = "C:\\Program Files (x86)\\msedgedriver.exe"
 
 
-def find_stock_prices(target_code, predictor_codes):
+def find_stock_prices(target_code, predictor_codes, duration):
     """Creates and returns a Dataframe of historical stock prices of the given stock_codes"""
 
-    data = pd.DataFrame.from_dict(get_data(target_code), orient="index",
+    data = pd.DataFrame.from_dict(get_data(target_code, duration), orient="index",
                                   columns=[target_code.upper()])
 
     for stock_code in predictor_codes:
-        data[stock_code.upper()] = get_data(stock_code).values()
+        data[stock_code.upper()] = get_data(stock_code, duration).values()
 
     return data
 
 
-def get_data(stock_code):
+def get_data(stock_code, duration):
     """Returns a dictionary of historical stock prices of the specified stock_code"""
 
     driver = webdriver.Edge(DRIVER_LOC)
     driver.get(BASE_URL)
 
     navigate_to_stock(driver, stock_code)
-    start_date = set_start_date(driver)
+    start_date = set_start_date(driver, duration)
 
     if not start_date:
         return False
@@ -57,7 +57,7 @@ def navigate_to_stock(driver, stock_code):
     search_bar.send_keys(Keys.RETURN)
 
 
-def set_start_date(driver):
+def set_start_date(driver, duration):
     """Sets and returns the specified start date for the historical time period"""
 
     try:
@@ -70,7 +70,7 @@ def set_start_date(driver):
         driver_wait.until(EC.presence_of_element_located(
             (By.XPATH, "//div[@class='Pos(r) D(ib) Va(m) Mstart(8px)']"))).click()
         driver_wait.until(EC.presence_of_element_located(
-            (By.XPATH, "//button[@data-value='1_Y']"))).click()
+            (By.XPATH, "//button[@data-value='%s']" % duration))).click()
         driver_wait.until(EC.presence_of_element_located(
             (By.XPATH, "//span[text()='Apply']"))).click()
         element = driver_wait.until(EC.presence_of_element_located(

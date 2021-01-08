@@ -16,28 +16,23 @@ class GUI:
         self.predictor_stocks = []
         self.stock_buttons = []
         self.chk_states = []
+        self.time = [3, 6, 12, 60, 120]
 
-        self.root, self.canvas = self.create_window()
-        self.create_buttons()
-
-        self.canvas.place(x=0, y=0)
-        self.root.mainloop()
-
-    def create_window(self):
-
-        root = tk.Tk(className="StockPricePredictor")
+        self.root = tk.Tk(className="Stock Price Predictor")
         self.root.geometry("800x800")
         self.root.maxsize(800, 800)
 
-        canvas = tk.Canvas(self.root, bg="red", height=800, width=800)
-
+        self.canvas = tk.Canvas(self.root, height=800, width=800)
         image = ImageTk.PhotoImage(Image.open("E:\\Programming\\Python\\DerivativeSecurities"
                                               "\\res\\bg3.jpg"))
         self.canvas.create_image(0, 0, image=image, anchor="nw")
         self.canvas.create_text(400, 50, text="Stock Price Predictor",
                                 font=("Helvetica", 16, "bold"), fill="white", width=500)
 
-        return root, canvas
+        self.duration = self.create_buttons()
+
+        self.canvas.place(x=0, y=0)
+        self.root.mainloop()
 
     def create_buttons(self):
 
@@ -56,6 +51,15 @@ class GUI:
 
         tk.Button(self.root, text="Restart", command=self.restart, bg="#23AD60", cursor="pirate") \
             .place(x=60, y=600, width=100, height=40)
+
+        duration_var = tk.StringVar()
+        durations = {"3 Months": "3_M", "6 Months": "6_M", "Year To Date": "YTD",
+                     "1 Year": "1_Y", "5 Years": "5_Y", "MAX": "MAX"}
+        for i, (text, value) in enumerate(durations.items()):
+            tk.Radiobutton(self.root, text=text, variable=duration_var,
+                           value=value).place(x=425, y=145 + i * 25)
+
+        return duration_var
 
     def get_data(self, entry):
 
@@ -81,7 +85,7 @@ class GUI:
 
     def calculate(self):
 
-        data = find_stock_prices(self.target_stock, self.predictor_stocks)
+        data = find_stock_prices(self.target_stock, self.predictor_stocks, self.duration.get())
         plt.ion()
         plt.show()
         for column in self.predictor_stocks:
@@ -112,7 +116,6 @@ class GUI:
 
         for i in range(len(self.chk_states)):
             if self.chk_states[i].get():
-                print(self.stock_buttons[i]["text"])
                 self.predictor_stocks.append(self.stock_buttons[i]["text"])
 
         try:
@@ -163,7 +166,7 @@ class GUI:
                  (result, current)).place(x=210, y=228 + (len(self.stock_buttons) + 2) * 35)
 
         label = tk.Label(self.root)
-        label.place(x=420, y=200)
+        label.place(x=500, y=200)
         frames = self.get_frames(result, current)
         self.root.after(0, lambda: self.update(frames, label, 0))
 
