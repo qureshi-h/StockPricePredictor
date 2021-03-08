@@ -85,6 +85,9 @@ class GUI:
 
     def calculate(self):
 
+        if not self.target_stock or not self.predictor_stocks:
+            return
+
         data = find_stock_prices(self.target_stock, self.predictor_stocks, self.duration.get())
         plt.ion()
         plt.show()
@@ -118,6 +121,9 @@ class GUI:
             if self.chk_states[i].get():
                 self.predictor_stocks.append(self.stock_buttons[i]["text"])
 
+        if not self.predictor_stocks:
+            return
+
         try:
             result = stock_price_predictor(data, self.predictor_stocks)
         except ValueError:
@@ -135,11 +141,10 @@ class GUI:
 
     def update(self, frames, label, ind):
 
-        frame = frames[ind]
         ind += 1
         if ind == len(frames):
             ind = 0
-        label.configure(image=frame)
+        label.configure(image=frames[ind - 1])
         self.root.after(self.FRAME_RATE, self.update, frames, label, ind)
 
     def get_frames(self, predicted, current):
@@ -166,7 +171,7 @@ class GUI:
                  (result, current)).place(x=210, y=228 + (len(self.stock_buttons) + 2) * 35)
 
         label = tk.Label(self.root)
-        label.place(x=500, y=200)
+        label.place(x=500, y=300)
         frames = self.get_frames(result, current)
         self.root.after(0, lambda: self.update(frames, label, 0))
 
@@ -177,5 +182,4 @@ class GUI:
 
 
 if __name__ == '__main__':
-
     GUI()

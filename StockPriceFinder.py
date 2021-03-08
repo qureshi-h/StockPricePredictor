@@ -18,7 +18,7 @@ DATE_POS = 0
 CLOSE_PRICE_ADJ_POS = 5
 
 BASE_URL = "https://au.finance.yahoo.com/"
-DRIVER_LOC = "C:\\Program Files (x86)\\msedgedriver.exe"
+DRIVER_LOC = "E:\\Programming\\Python\\DerivativeSecurities\\res\\msedgedriver.exe"
 
 
 def find_stock_prices(target_code, predictor_codes, duration):
