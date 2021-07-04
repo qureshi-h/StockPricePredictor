@@ -1,5 +1,4 @@
-from Scrapper import WebScrapper
-from YFinanceFinder import YFinanceFinder
+import PriceFinderFactory
 from StockPricePredictor import stock_price_predictor
 
 import matplotlib.pyplot as plt
@@ -90,7 +89,8 @@ class GUI:
         if not self.target_stock or not self.predictor_stocks:
             return
 
-        data = YFinanceFinder().find_stock_prices(self.target_stock, self.predictor_stocks, self.duration.get())
+        data = PriceFinderFactory.get_price_finder()\
+            .find_stock_prices(self.target_stock, self.predictor_stocks, self.duration.get())
         plt.ion()
         plt.show()
         for column in self.predictor_stocks:

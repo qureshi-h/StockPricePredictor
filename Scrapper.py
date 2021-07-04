@@ -27,7 +27,8 @@ class WebScrapper(StockPriceFinder):
     DRIVER_LOC = "E:\\Programming\\Python\\DerivativeSecurities\\res\\chromedriver.exe"
 
     def __init__(self):
-        self.driver = 1
+        self.driver = webdriver.Chrome(self.DRIVER_LOC)
+        self.driver.quit()
 
     def find_stock_prices(self, target_code, predictor_codes, duration):
         """Creates and returns a Dataframe of historical stock prices of the given stock_codes"""
