@@ -1,4 +1,4 @@
-from StockPriceFinder import find_stock_prices
+from Scrapper import WebScrapper
 from StockPricePredictor import stock_price_predictor
 import matplotlib.pyplot as plt
 import tkinter as tk
@@ -88,7 +88,7 @@ class GUI:
         if not self.target_stock or not self.predictor_stocks:
             return
 
-        data = find_stock_prices(self.target_stock, self.predictor_stocks, self.duration.get())
+        data = WebScrapper().find_stock_prices(self.target_stock, self.predictor_stocks, self.duration.get())
         plt.ion()
         plt.show()
         for column in self.predictor_stocks:
