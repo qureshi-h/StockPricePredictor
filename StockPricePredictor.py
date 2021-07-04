@@ -9,4 +9,4 @@ def stock_price_predictor(data, predictors):
     model = linear_model.LinearRegression(fit_intercept=True, normalize=True, copy_X=True)
     model.fit(X, y)
 
-    return model.predict([X.iloc[0]])[0]
+    return model.predict([data.loc[data.index.max()][1:]])[0]

@@ -1,5 +1,7 @@
 from Scrapper import WebScrapper
+from YFinanceFinder import YFinanceFinder
 from StockPricePredictor import stock_price_predictor
+
 import matplotlib.pyplot as plt
 import tkinter as tk
 from PIL import ImageTk, Image
@@ -88,7 +90,7 @@ class GUI:
         if not self.target_stock or not self.predictor_stocks:
             return
 
-        data = WebScrapper().find_stock_prices(self.target_stock, self.predictor_stocks, self.duration.get())
+        data = YFinanceFinder().find_stock_prices(self.target_stock, self.predictor_stocks, self.duration.get())
         plt.ion()
         plt.show()
         for column in self.predictor_stocks:
@@ -124,6 +126,7 @@ class GUI:
         if not self.predictor_stocks:
             return
 
+        data = data.sort_index(ascending=False)
         try:
             result = stock_price_predictor(data, self.predictor_stocks)
         except ValueError:
