@@ -14,6 +14,7 @@ from selenium.common.exceptions import NoSuchElementException
 from datetime import datetime
 from StockPriceFinder import StockPriceFinder
 
+
 class WebScrapper(StockPriceFinder):
 
     NUM_ELEMENTS = 6
@@ -26,7 +27,7 @@ class WebScrapper(StockPriceFinder):
     DRIVER_LOC = "E:\\Programming\\Python\\DerivativeSecurities\\res\\chromedriver.exe"
 
     def __init__(self):
-        self.driver = webdriver.Chrome(self.DRIVER_LOC)
+        self.driver = 1
 
     def find_stock_prices(self, target_code, predictor_codes, duration):
         """Creates and returns a Dataframe of historical stock prices of the given stock_codes"""
@@ -87,14 +88,19 @@ class WebScrapper(StockPriceFinder):
             self.driver.quit()
             return False
 
-    def validate_start_date(self, start_date):
+    @staticmethod
+    def validate_start_date(start_date):
+        """Moves start_date to weekday if it falls on Saturday on Sunday"""
 
-        print(start_date)
-        if datetime.today().weekday() < 5:
-            return start_date
+        # Yahoo Finance uses abbreviated month names where month names exceed 4 characters
+        try:
+            if datetime.strptime(start_date, '%d %B %Y').weekday() < 5:
+                return start_date
+        except ValueError:
+            if datetime.strptime(start_date, '%d %b %Y').weekday() < 5:
+                return start_date
 
         start_date = f"{int(start_date[:2]) + 2:02d}" + start_date[2:]
-        print(start_date)
         return start_date
 
     def scroll_to_date(self, start_date):
