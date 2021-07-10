@@ -1,5 +1,5 @@
 import PriceFinderFactory
-from StockPricePredictor import stock_price_predictor
+from LinearRegressionPredictor import LinearRegressionPredictor
 
 import matplotlib.pyplot as plt
 import tkinter as tk
@@ -128,9 +128,9 @@ class GUI:
 
         data = data.sort_index(ascending=False)
         try:
-            result = stock_price_predictor(data, self.predictor_stocks)
+            result = LinearRegressionPredictor().stock_price_predictor(data, self.predictor_stocks)
         except ValueError:
-            result = stock_price_predictor(data, self.predictor_stocks)
+            result = LinearRegressionPredictor().stock_price_predictor(data, self.predictor_stocks)
 
         self.display_results(result, data.iloc[0, 0])
 

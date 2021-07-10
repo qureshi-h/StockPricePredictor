@@ -1,4 +1,4 @@
-from Scrapper import WebScrapper
+from ScrapperPriceFinder import WebScrapper
 from YFinanceFinder import YFinanceFinder
 
 
